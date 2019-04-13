@@ -7,14 +7,12 @@ db = GraphDatabase("http://localhost:7474", username="neo4j",
 
 
 def relation():
-    df = pd.read_csv("filemapc.csv")
+    df = pd.read_csv("filemap.csv")
     relation = {}
     node_idmap = {}
     db = GraphDatabase("http://localhost:7474", username="neo4j",
                        password="n3o4j")
     committer_email = db.labels.create("CommitterEmail")
-
-    # bob in [rel.end for rel in alice.relationships.all(types=['Knows'])]
 
     for idx, x in df['committers'].iteritems():
         commiters = x.split()
@@ -27,11 +25,9 @@ def relation():
             relation[first_committer] = x
             n_new = db.nodes.create(name=first_committer)
             n_nid = n_new.id
-            # print(n_nid)
             committer_email.add(n_new)
             node_idmap[first_committer] = n_nid
-            # print(node_idmap)
-            print("commiter created:", relation[first_committer].get_name())
+            print("committer created:", relation[first_committer].get_name())
 
         if len(commiters) !=0:
             for commiter in commiters:
@@ -62,9 +58,7 @@ def relation():
                     relation[commiter] = x
                     n_new = db.nodes.create(name=commiter)
                     n_nid = n_new.id
-                    # print(n_nid)
                     node_idmap[commiter] = n_nid
-                    # print(node_idmap)
                     committer_email.add(n_new)
 
                     prev = relation[first_committer]
@@ -72,7 +66,6 @@ def relation():
                     print(prev.get_neighbours())
                     relation[first_committer] = prev
 
-                    # print(node_idmap[first_committer])
                     n1 = db.nodes.get(node_idmap[commiter])
                     n2 = db.nodes.get(node_idmap[first_committer])
                     n2.Knows(n1)
