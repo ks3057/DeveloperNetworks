@@ -2,14 +2,18 @@ import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
 import collections
+import csv
 
 G = nx.Graph()
-bc = cc = dc = {}
+bc = {}
+cc = {}
+dc = {}
 visited = {}
 
 
 def build():
     df = pd.read_csv("filemap.csv")
+    f = open("developer_edges.txt", "w")
     for idx, x in df['committers'].iteritems():
         committers = x.split()
         for committer in committers:
@@ -26,10 +30,7 @@ def build():
                         dc[other] = 0
                     if not G.has_edge(first_committer, other):
                         G.add_edge(first_committer, other)
-
-    edges = list(map(lambda tup: tup[0]+":"+tup[1], G.edges()))
-    with open('DevNetEdges.txt', mode='w') as myfile:
-        myfile.write('\n'.join(edges))
+                        f.write(first_committer + ":" + other + "\n")
 
 
 def bfs(start_node, end_node):
@@ -61,6 +62,7 @@ def bfs(start_node, end_node):
 
 
 def degree_centrality():
+    global dc
     for edge in G.edges():
         dc[edge[0]] += 1
         dc[edge[1]] += 1
@@ -71,6 +73,7 @@ def degree_centrality():
 
 
 def closeness_centrality():
+    global cc
     for start_node in G.nodes():
         for end_node in G.nodes():
             if start_node != end_node and not visited.get((start_node,
@@ -83,20 +86,26 @@ def closeness_centrality():
 
     sum = G.number_of_nodes() - 1
     for key, value in dc.items():
-        dc[key] = sum / value
+        cc[key] = sum / value
 
 
 def display_network():
     print()
     print("total nodes in graph:", G.number_of_nodes())
     print("total edges in graph:", G.number_of_edges())
-    # print(G.nodes())
-    # print(G.edges())
     nx.draw(G)
     plt.savefig("path_graph.pdf")
 
+    with open('output.csv', 'w') as f:
+        w = csv.writer(f, delimiter=',')
+        w.writerow(["email", "degree centrality", "betweenness centrality",
+                    "closeness centrality"])
+        for node in G.nodes():
+            w.writerow([node, dc[node], bc[node], cc[node]])
+
 
 def betweenness_centrality():
+    global bc
     path_counter = 0
     for start in G.nodes():
         for end in G.nodes():
@@ -121,7 +130,6 @@ def betweenness_centrality():
 def main():
     build()
     print("network built")
-
     betweenness_centrality()
     print("betweenness centrality calculated")
     degree_centrality()
@@ -129,7 +137,10 @@ def main():
     closeness_centrality()
     print("closeness centrality calculated")
     display_network()
+    print()
+    print("check developer_edges.txt for graph edges")
     print("check path_graph.pdf for node display")
+    print("check output.csv for centrality output")
 
 
 if __name__ == '__main__':

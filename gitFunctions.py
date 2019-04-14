@@ -38,7 +38,7 @@ def initialise():
     print("mapping complete")
     with open('filemap.csv', 'w') as f:
         w = csv.writer(f, delimiter=',')
-        w.writerow(["filename", "committers"])
+        w.writerow(["filename","committers"])
         for key, values in file_shared_by.items():
             values = ' '.join(values)
             w.writerow([key, values])
