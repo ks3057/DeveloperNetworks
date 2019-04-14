@@ -1,32 +1,31 @@
 import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
+import collections
 
 G = nx.Graph()
-dc = bc = cc = {}
+bc = cc = dc = {}
+visited = {}
 
 
 def build():
-    df = pd.read_csv("temp.csv")
-
+    df = pd.read_csv("filemap.csv")
     for idx, x in df['committers'].iteritems():
-        commiters = x.split()
-        # first_committer = commiters.pop(0)
-        # G.add_node(first_committer)
-        # # G.add_node(first_committer, distance=9999, visited=False)
-        # for committer in commiters:
-        #     G.add_node(committer)
-        #     G.add_edge(first_committer, committer)
-
-        for _ in commiters:
-            first_committer = commiters.pop(0)
+        committers = x.split()
+        for committer in committers:
+            first_committer = committer
             if not G.has_node(first_committer):
                 G.add_node(first_committer)
-            for other in commiters:
-                if not G.has_node(other):
-                    G.add_node(other)
-                if not G.has_edge(first_committer, other):
-                    G.add_edge(first_committer, other)
+                bc[first_committer] = 0
+                dc[first_committer] = 0
+            for other in committers:
+                if first_committer != other:
+                    if not G.has_node(other):
+                        G.add_node(other)
+                        bc[other] = 0
+                        dc[other] = 0
+                    if not G.has_edge(first_committer, other):
+                        G.add_edge(first_committer, other)
 
     edges = list(map(lambda tup: tup[0]+":"+tup[1], G.edges()))
     with open('DevNetEdges.txt', mode='w') as myfile:
@@ -34,17 +33,14 @@ def build():
 
 
 def bfs(start_node, end_node):
-    queue = list()
+    queue = collections.deque()
     predecessor = {}
-
-    if start_node == end_node:
-        return []
 
     queue.append(start_node)
     predecessor[start_node] = None
 
     while queue and queue[0] != end_node:
-        n = queue.pop(0)
+        n = queue.popleft()
         for neighbor in list(G.neighbors(n)):
             if neighbor not in predecessor:
                 predecessor[neighbor] = n
@@ -64,26 +60,76 @@ def bfs(start_node, end_node):
         return path
 
 
+def degree_centrality():
+    for edge in G.edges():
+        dc[edge[0]] += 1
+        dc[edge[1]] += 1
+
+    sum = G.number_of_nodes() - 1
+    for key, value in dc.items():
+        dc[key] = value/sum
+
+
+def closeness_centrality():
+    for start_node in G.nodes():
+        for end_node in G.nodes():
+            if start_node != end_node and not visited.get((start_node,
+                                                           end_node), None):
+                path = bfs(start_node, end_node)
+                visited[(start_node, end_node)] = True
+                visited[(end_node, start_node)] = True
+                cc[start_node] += len(path) - 1
+                cc[end_node] += len(path) - 1
+
+    sum = G.number_of_nodes() - 1
+    for key, value in dc.items():
+        dc[key] = sum / value
+
+
 def display_network():
-    print(G.number_of_edges())
-    print(G.number_of_nodes())
-    print(G.nodes())
-    print(G.edges())
+    print()
+    print("total nodes in graph:", G.number_of_nodes())
+    print("total edges in graph:", G.number_of_edges())
+    # print(G.nodes())
+    # print(G.edges())
     nx.draw(G)
     plt.savefig("path_graph.pdf")
 
 
+def betweenness_centrality():
+    path_counter = 0
+    for start in G.nodes():
+        for end in G.nodes():
+            if start != end and not visited.get((start, end), None):
+                visited[(start, end)] = True
+                visited[(end, start)] = True
+                for path in nx.all_shortest_paths(G, start, end):
+                    if len(path) > 2:
+                        for element in path[1:-1]:
+                            bc[element] += 1
+                            path_counter += 1
+                    else:
+                        path_counter += 1
+
+    for k, v in bc.items():
+        bc[k] = v / path_counter
+    sum1 = sum(bc.values())
+    for key, val in bc.items():
+        bc[key] = val / sum1
+
+
 def main():
     build()
-    for start_node in G.nodes():
-        for end_node in G.nodes():
-            if start_node != end_node:
-                print("start node is", start_node)
-                print("end_node is", end_node)
-                print(bfs(start_node, end_node))
-                print()
+    print("network built")
 
-    # display_network()
+    betweenness_centrality()
+    print("betweenness centrality calculated")
+    degree_centrality()
+    print("degree centrality calculated")
+    closeness_centrality()
+    print("closeness centrality calculated")
+    display_network()
+    print("check path_graph.pdf for node display")
 
 
 if __name__ == '__main__':
