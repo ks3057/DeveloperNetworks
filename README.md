@@ -40,15 +40,20 @@ Also commits are not always committed by the author. If you work on GitHub.com, 
 The developer network is constructed using NetworkX. Each unique committer email id is a node on the network. An edge between two committers if formed if they have both committed to at least one file in common. The graph is undirected and unweighted.
 
 ### EXPERIMENT PART 3: ANALYSING THE NETWORK
-The network is analysed using three centrality measures:
-**Degree Centrality:** The number of links incident upon a node. It is used as measure of a node’s degree of connectedness and hence also influence and/or popularity.
-**Betweenness Centrality:** The number of shortest paths that pass through a node divided by all shortest paths in the network. Shows which nodes are more likely to be in communication paths between other nodes.
-**Closeness Centrality:** The mean length of all shortest paths from a node to all other nodes in the network. It is a measure of reach, i.e. how long it will take to reach other nodes from a given starting node.
+The network is analysed using three centrality measures:<br />
+**Degree Centrality:** The number of links incident upon a node. It is used as measure of a node’s degree of connectedness and hence also influence and/or popularity.<br />
+**Betweenness Centrality:** The number of shortest paths that pass through a node divided by all shortest paths in the network. Shows which nodes are more likely to be in communication paths between other nodes.<br />
+**Closeness Centrality:** The mean length of all shortest paths from a node to all other nodes in the network. It is a measure of reach, i.e. how long it will take to reach other nodes from a given starting node.<br />
 
 ### RESULTS
 There are three output files produced by running NetworkxMap.py.
-1. developer_edges.txt: A text file where each line represent an edge in the graph in the format "email1:email2" indicating an edge from email1 to email2. ashumilo@redhat.com:okurinny@redhat.com
+1. developer_edges.txt: A text file where each line represent an edge in the graph in the format "email1:email2" indicating an edge from email1 to email2. 
+ashumilo@redhat&#46;com:okurinny@redhat\.com
 2. path_graph.pdf: A pdf file displaying a simple graph of the developer network.
 ![Screenshot 2019-12-30 at 3 46 14 AM](https://user-images.githubusercontent.com/42880317/71574585-5e6ffa00-2ab7-11ea-9bb0-6bbe36afb257.png)
+3. output.csv: contains each node in the graph in format → "email,degree centrality,betweenness centrality,closeness centrality"
+![Screenshot 2019-12-30 at 3 50 37 AM](https://user-images.githubusercontent.com/42880317/71574784-51073f80-2ab8-11ea-8d4a-8db7b18614da.png)
 
-
+### CONCLUSION
+`skabashnyuk@users.noreply.github.com` has the highest Degree Centrality and Betweenness Centrality.
+`targetjump@gmail.com` has the highest Closeness Centrality.
