@@ -49,4 +49,6 @@ The network is analysed using three centrality measures:
 There are three output files produced by running NetworkxMap.py.
 1. developer_edges.txt: A text file where each line represent an edge in the graph in the format "email1:email2" indicating an edge from email1 to email2. ashumilo@redhat.com:okurinny@redhat.com
 2. path_graph.pdf: A pdf file displaying a simple graph of the developer network.
+![Screenshot 2019-12-30 at 3 46 14 AM](https://user-images.githubusercontent.com/42880317/71574585-5e6ffa00-2ab7-11ea-9bb0-6bbe36afb257.png)
+
 
